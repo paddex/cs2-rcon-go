@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"log/slog"
 	"net"
 )
 
@@ -52,11 +53,17 @@ func (c *Client) send(pkg pkg) error {
 }
 
 func (c *Client) read() ([]byte, error) {
+	slog.Debug("test")
 	buf := make([]byte, 4096)
 	n, err := c.conn.Read(buf)
 	if err != nil {
 		return nil, err
 	}
+
+	slog.Debug(
+		"Received Package",
+		slog.String("HEX", fmt.Sprintf("% x", buf)),
+	)
 
 	// Check if challenged && repeat request with challenge number
 	if buf[4] == 0x41 {

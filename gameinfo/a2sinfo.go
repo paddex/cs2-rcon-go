@@ -1,6 +1,6 @@
 package gameinfo
 
-type A2s_info_response struct {
+type A2S_Info_Response struct {
 	Header     string
 	Protocol   byte
 	Name       string
@@ -25,7 +25,7 @@ type A2s_info_response struct {
 	Gameid     uint64
 }
 
-func (c *Client) GetServerInfo() (*A2s_info_response, error) {
+func (c *Client) GetServerInfo() (*A2S_Info_Response, error) {
 	info := pkg{
 		header:    -1,
 		pkgtype:   'T',
@@ -43,7 +43,7 @@ func (c *Client) GetServerInfo() (*A2s_info_response, error) {
 		return nil, err
 	}
 
-	response := A2s_info_response{}
+	response := A2S_Info_Response{}
 	response.Header, buf = readChar(buf)
 	response.Protocol, buf = readByte(buf)
 	response.Name, buf = readString(buf)
