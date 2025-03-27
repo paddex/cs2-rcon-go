@@ -116,7 +116,6 @@ func (c *Client) receive() (*pkg, error) {
 	if err != nil {
 		return nil, err
 	}
-	readTotal += n
 	reader := bytes.NewReader(buf)
 	err = binary.Read(reader, binary.LittleEndian, &pkg.size)
 	if err != nil {
@@ -148,26 +147,17 @@ func (c *Client) receive() (*pkg, error) {
 	}
 
 	// read body
-	if pkg.size > 4096 {
-		for readTotal < int(pkg.size) {
-			bodyLen := 4096
-			buf = make([]byte, bodyLen)
-			n, err := c.conn.Read(buf)
-			if err != nil {
-				return nil, err
-			}
-			readTotal += n
-			pkg.body = append(pkg.body, buf...)
-		}
-	} else {
-		bodyLen := pkg.size - 8
+	for readTotal < int(pkg.size) {
+		bodyLen := 4096
 		buf = make([]byte, bodyLen)
-		_, err = c.conn.Read(buf)
+		n, err := c.conn.Read(buf)
 		if err != nil {
 			return nil, err
 		}
-		pkg.body = buf
+		readTotal += n
+		pkg.body = append(pkg.body, buf[:n]...)
 	}
+	pkg.body = pkg.body[:len(pkg.body)-2]
 
 	return &pkg, nil
 }
